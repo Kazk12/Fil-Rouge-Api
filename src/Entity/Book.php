@@ -10,6 +10,7 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Delete;
 use App\DataPersister\BookDataPersister;
 use App\Repository\BookRepository;
+use App\State\Provider\LastFiveBooksProvider;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -27,9 +28,15 @@ use Symfony\Component\Serializer\Annotation\Groups;
             normalizationContext: ['groups' => ['book:read']],
             security: "is_granted('PUBLIC_ACCESS')"
         ),
+        // new GetCollection(
+        //     uriTemplate: '/books/last-five',
+        //     normalizationContext: ['groups' => ['book:read']],
+        //     security: "is_granted('PUBLIC_ACCESS')",
+        //     provider: LastFiveBooksProvider::class
+        // ),
         new Post(
             denormalizationContext: ['groups' => ['book:write']],
-            security: "is_granted('ROLE_USER')",
+            security: "is_granted('ROLE_VENDEUR')",
             processor: BookDataPersister::class,
             securityMessage: "Seuls les utilisateurs connectés peuvent créer des livres"
         ),
@@ -54,7 +61,7 @@ class Book
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['book:read', 'book:write'])]
+    #[Groups(['book:read', 'book:write', 'book:five'])]
     private ?string $title = null;
 
     #[ORM\Column(length: 255)]
@@ -73,6 +80,7 @@ class Book
     private ?User $user = null;
 
     #[ORM\ManyToOne(inversedBy: 'books')]
+    #[Groups(['book:read', 'book:write'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?State $state = null;
 
@@ -83,15 +91,19 @@ class Book
     private Collection $purchases;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['book:read', 'book:write'])]
     private ?string $shortDescription = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Groups(['book:read', 'book:write'])]
     private ?string $description = null;
 
     #[ORM\Column(type: Types::BIGINT)]
-    private ?string $price = null;
+    #[Groups(['book:read', 'book:write'])]
+    private ?int $price = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['book:read', 'book:write'])]
     private ?string $image = null;
 
     public function __construct()

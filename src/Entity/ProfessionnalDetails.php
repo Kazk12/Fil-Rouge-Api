@@ -16,7 +16,7 @@ use Doctrine\ORM\Mapping as ORM;
             uriTemplate: '/registerClient',
             denormalizationContext: ['groups' => ['user:write']],
             validationContext: ['groups' => ['Default']],
-            security: "is_granted('PUBLIC_ACCESS')",
+            security: "is_granted('ROLE_ADMIN')",
             processor: ProfessionnalDetailsDataPersister::class
         )
     ]

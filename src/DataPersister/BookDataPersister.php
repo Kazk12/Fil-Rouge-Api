@@ -18,6 +18,7 @@ class BookDataPersister implements ProcessorInterface
 
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): Book
     {
+        
         if ($data instanceof Book && $operation instanceof Post) {
             $data->setUser($this->security->getUser());
         }

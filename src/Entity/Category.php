@@ -19,9 +19,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
     operations: [
         new Get(normalizationContext: ['groups' => ['category:read']]),
         new GetCollection(normalizationContext: ['groups' => ['category:read']]),
-        new Post(denormalizationContext: ['groups' => ['category:write']]),
-        new Patch(denormalizationContext: ['groups' => ['category:write']]),
-        new Delete(),
     ]
 )]
 class Category
