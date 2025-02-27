@@ -3,9 +3,13 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Patch;
 use App\DataPersister\UserDataPersister;
+use App\DataPersister\UserDeleteDataPersister;
+use App\DataPersister\UserUpdateDataPersister;
 use App\DataProvider\UserProvider;
 use App\Repository\UserRepository;
 use App\State\Provider\MeProvider;
@@ -35,6 +39,19 @@ use Symfony\Component\Security\Core\User\UserInterface;
             provider: MeProvider::class,
             securityMessage: "Vous devez être connecté pour accéder à cette ressource"
         ),
+        new Patch(
+            uriTemplate: '/update-me',
+            denormalizationContext: ['groups' => ['user:update']],
+            normalizationContext: ['groups' => ['user:read']],
+            security: "is_granted('ROLE_USER')",
+            provider: MeProvider::class,
+            processor: UserUpdateDataPersister::class,
+            securityMessage: "Vous devez être connecté pour accéder à cette ressource"
+        ),
+        new Delete(
+            security: "is_granted('ROLE_USER') and object == user",
+            securityMessage: "Vous ne pouvez supprimer que votre propre compte",
+        ),
     ]
 )]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
@@ -46,7 +63,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
-    #[Groups(['user:write', 'user:read'])]
+    #[Groups(['user:write', 'user:read', 'user:update'])]
     private ?string $email = null;
 
     /**
@@ -59,7 +76,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var string The hashed password
      */
     #[ORM\Column]
-    #[Groups(['user:write'])]
+    #[Groups(['user:write', 'user:update'])]
     private ?string $password = null;
 
     /**
@@ -69,15 +86,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private Collection $books;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['user:write', 'user:read'])]
+    #[Groups(['user:write', 'user:read', 'user:update'])]
     private ?string $firstName = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['user:write', 'user:read'])]
+    #[Groups(['user:write', 'user:read', 'user:update'])]
     private ?string $lastName = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['user:write'])]
+    #[Groups(['user:write', 'user:read', 'user:update'])]
     private ?string $phoneNumber = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
