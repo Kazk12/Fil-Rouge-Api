@@ -10,7 +10,7 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Delete;
 use App\DataPersister\BookDataPersister;
 use App\Repository\BookRepository;
-use App\State\Provider\LastFiveBooksProvider;
+use App\State\Provider\BookCollectionProvider;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -28,12 +28,14 @@ use Symfony\Component\Serializer\Annotation\Groups;
             normalizationContext: ['groups' => ['book:read']],
             security: "is_granted('PUBLIC_ACCESS')"
         ),
-        // new GetCollection(
-        //     uriTemplate: '/books/last-five',
-        //     normalizationContext: ['groups' => ['book:read']],
-        //     security: "is_granted('PUBLIC_ACCESS')",
-        //     provider: LastFiveBooksProvider::class
-        // ),
+        new GetCollection(
+            uriTemplate: '/books/{id}/other-books',
+            normalizationContext: ['groups' => ['book:read']],
+            security: "is_granted('ROLE_USER')",
+            provider: BookCollectionProvider::class,
+            paginationEnabled: false,
+            securityMessage: "Vous devez être connecté pour accéder à cette ressource"
+        ),
         new Post(
             denormalizationContext: ['groups' => ['book:write']],
             security: "is_granted('ROLE_VENDEUR')",

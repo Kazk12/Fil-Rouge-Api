@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\ProfessionnalDetailsRepository;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Get;
 use Symfony\Component\Serializer\Attribute\Groups;
 use App\DataPersister\ProfessionnalDetailsDataPersister;
 use Doctrine\ORM\Mapping as ORM;
@@ -18,6 +19,11 @@ use Doctrine\ORM\Mapping as ORM;
             validationContext: ['groups' => ['Default']],
             security: "is_granted('ROLE_ADMIN')",
             processor: ProfessionnalDetailsDataPersister::class
+        ),
+        new Get(
+            normalizationContext: ['groups' => ['user:read']],
+            security: "is_granted('ROLE_ADMIN', 'ROLE_VENDEUR')",
+
         )
     ]
 )]
