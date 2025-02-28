@@ -50,13 +50,12 @@ use Symfony\Component\Security\Core\User\UserInterface;
             securityMessage: "Vous devez être connecté pour accéder à cette ressource"
         ),
         new Patch(
-            uriTemplate: '/update-me',
+        
             denormalizationContext: ['groups' => ['user:update']],
             normalizationContext: ['groups' => ['user:read']],
-            security: "is_granted('ROLE_USER')",
-            provider: MeProvider::class,
+            security: "is_granted('USER_EDIT', object)",
             processor: UserUpdateDataPersister::class,
-            securityMessage: "Vous devez être connecté pour accéder à cette ressource"
+            securityMessage: "Vous ne pouvez modifier que votre propre compte",
         ),
     ]
 )]

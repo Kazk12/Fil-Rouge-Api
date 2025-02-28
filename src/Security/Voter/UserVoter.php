@@ -11,10 +11,11 @@ use Symfony\Component\Security\Core\Security as CoreSecurity;
 class UserVoter extends Voter
 {
     public const DELETE = 'USER_DELETE';
+    public const EDIT = 'USER_EDIT';
 
     protected function supports(string $attribute, $subject): bool
     {
-        return in_array($attribute, [self::DELETE])
+        return in_array($attribute, [self::DELETE, self::EDIT])
             && $subject instanceof User;
     }
 
@@ -30,6 +31,8 @@ class UserVoter extends Voter
         switch ($attribute) {
             case self::DELETE:
                 return $this->canDelete($subject, $user);
+            case self::EDIT:
+                return $this->canEdit($subject, $user);
         }
 
         return false;
@@ -38,6 +41,12 @@ class UserVoter extends Voter
     private function canDelete(User $subject, User $user): bool
     {
         // Users can only delete their own account
+        return $user === $subject;
+    }
+
+    private function canEdit(User $subject, User $user): bool
+    {
+        // Users can only edit their own account
         return $user === $subject;
     }
 }
