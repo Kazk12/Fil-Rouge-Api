@@ -3,6 +3,8 @@
 namespace App\Tests\Functional\Controller;
 
 use App\Entity\Book;
+use App\Entity\ProfessionnalDetails;
+use App\Entity\State;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -44,13 +46,31 @@ class BookShowTest extends WebTestCase
         $user = new User();
         $user->setEmail('testoar@example.com');
         $user->setPassword('password');
+        $user->setFirstName('Test');
+        $user->setLastName('User');
+        $user->setRoles(['ROLE_USER']);
+        $user->setPhoneNumber('1234567890');
+        $user->setDescription('Test Description');
+        $prof = new ProfessionnalDetails(); 
+        $prof->setCompanyAdress('Test Company Adress');
+        $prof->setCompanyName('Test Company Name');
+        $user->setProfessionnalDetails($prof);
+
+        $state = new State();
+        $state->setName('Test State');
         
         $book = new Book();
         $book->setTitle('Test Book');
         $book->setAuthor('Test Author');
+        $book->setDescription('Test Description');
+        $book->setShortDescription('Test Short Description');
+        $book->setPrice(10);
+        $book->setImage('test.jpg');
+        $book->setState($state);
         $book->setUser($user);
         
         $this->entityManager->persist($user);
+        $this->entityManager->persist($state);
         $this->entityManager->persist($book);
         $this->entityManager->flush();
         

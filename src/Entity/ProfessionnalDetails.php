@@ -35,11 +35,11 @@ class ProfessionnalDetails
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['user:write'])]
+    #[Groups(['user:write', 'user:read'])]
     private ?string $companyAdress = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['user:write'])]
+    #[Groups(['user:write', 'user:read'])]
     private ?string $companyName = null;
 
     #[ORM\OneToOne(mappedBy: 'professionnalDetails', cascade: ['persist', 'remove'])]

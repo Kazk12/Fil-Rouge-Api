@@ -12,6 +12,7 @@ use App\DataPersister\UserDeleteDataPersister;
 use App\DataPersister\UserUpdateDataPersister;
 use App\DataProvider\UserProvider;
 use App\Repository\UserRepository;
+use ApiPlatform\Metadata\GetCollection;
 use App\State\Provider\MeProvider;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -25,6 +26,15 @@ use Symfony\Component\Security\Core\User\UserInterface;
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
 #[ApiResource(
     operations: [
+        new Delete(
+            security: "is_granted('ROLE_USER') and object == user",
+            securityMessage: "Vous ne pouvez supprimer que votre propre compte",
+        ),
+        new Get(
+            normalizationContext: ['groups' => ['user:restricted:read']],
+            // security: "is_granted('ROLE_ADMIN')",
+            
+        ),
         new Post(
             uriTemplate: '/register',
             denormalizationContext: ['groups' => ['user:write']],
@@ -48,10 +58,6 @@ use Symfony\Component\Security\Core\User\UserInterface;
             processor: UserUpdateDataPersister::class,
             securityMessage: "Vous devez être connecté pour accéder à cette ressource"
         ),
-        new Delete(
-            security: "is_granted('ROLE_USER') and object == user",
-            securityMessage: "Vous ne pouvez supprimer que votre propre compte",
-        ),
     ]
 )]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
@@ -59,11 +65,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['user:read'])]
+    #[Groups(['user:read', 'user:restricted:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
-    #[Groups(['user:write', 'user:read', 'user:update'])]
+    #[Groups(['user:write', 'user:update'])]
     private ?string $email = null;
 
     /**
@@ -86,7 +92,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private Collection $books;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['user:write', 'user:read', 'user:update'])]
+    #[Groups(['user:write', 'user:read', 'user:update', 'user:restricted:read'])]
     private ?string $firstName = null;
 
     #[ORM\Column(length: 255)]

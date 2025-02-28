@@ -35,7 +35,14 @@ class BookControllerTest extends WebTestCase
         // Arrange
         $data = [
             'title' => 'Test Book',
-            'author' => 'Test Author'
+            'author' => 'Test Author',
+            'description' => 'Test Description',
+            'short_description' => 'Test Short Description',
+            'price' => 10.99,
+            'image' => 'test.jpg',
+            'state_id' => 1,
+            'user_id' => 1
+            
         ];
 
         // Act
