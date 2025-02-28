@@ -15,6 +15,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: BookRepository::class)]
@@ -64,10 +65,24 @@ class Book
 
     #[ORM\Column(length: 255)]
     #[Groups(['book:read', 'book:write', 'book:five'])]
+    #[Assert\NotBlank]
+    #[Assert\Length(
+        min: 3,
+        max: 255,
+        minMessage: 'Title must be at least {{ limit }} characters long',
+        maxMessage: 'Title cannot be longer than {{ limit }} characters',
+    )]
     private ?string $title = null;
 
     #[ORM\Column(length: 255)]
     #[Groups(['book:read', 'book:write'])]
+    #[Assert\NotBlank]
+    #[Assert\Length(
+        min: 3,
+        max: 255,
+        minMessage: 'Author must be at least {{ limit }} characters long',
+        maxMessage: 'Author cannot be longer than {{ limit }} characters',
+    )]
     private ?string $author = null;
 
     /**
@@ -94,14 +109,24 @@ class Book
 
     #[ORM\Column(length: 255)]
     #[Groups(['book:read', 'book:write'])]
+    #[Assert\Length(
+        min: 10,
+        minMessage: 'Description must be at least {{ limit }} characters long',
+    )]
     private ?string $shortDescription = null;
 
     #[ORM\Column(type: Types::TEXT)]
     #[Groups(['book:read', 'book:write'])]
+    #[Assert\Length(
+        min: 50,
+        minMessage: 'Description must be at least {{ limit }} characters long',
+    )]
     private ?string $description = null;
 
     #[ORM\Column(type: Types::BIGINT)]
     #[Groups(['book:read', 'book:write'])]
+    #[Assert\NotBlank]
+    #[Assert\Positive]
     private ?int $price = null;
 
     #[ORM\Column(length: 255)]

@@ -8,16 +8,14 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Patch;
 use App\DataPersister\UserDataPersister;
-use App\DataPersister\UserDeleteDataPersister;
 use App\DataPersister\UserUpdateDataPersister;
-use App\DataProvider\UserProvider;
 use App\Repository\UserRepository;
-use ApiPlatform\Metadata\GetCollection;
 use App\State\Provider\MeProvider;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -69,6 +67,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 180)]
     #[Groups(['user:write', 'user:update'])]
+    #[Assert\NotBlank]
+    #[Assert\Email(message: 'Invalid email format.')]
     private ?string $email = null;
 
     /**
@@ -82,6 +82,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     #[ORM\Column]
     #[Groups(['user:write', 'user:update'])]
+    #[Assert\NotBlank]
+    #[Assert\Regex(
+        pattern: '/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/',
+        message: "Password must contain at least 8 characters, including an uppercase letter, a lowercase letter, a number, and a special character."
+    )]
     private ?string $password = null;
 
     /**
