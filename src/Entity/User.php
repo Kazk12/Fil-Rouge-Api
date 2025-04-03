@@ -75,6 +75,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var list<string> The user roles
      */
     #[ORM\Column]
+    #[Groups(['user:read'])]
     private array $roles = [];
 
     /**
@@ -96,11 +97,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private Collection $books;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['user:write', 'user:read', 'user:update', 'user:restricted:read'])]
+    #[Groups(['user:write', 'user:read', 'user:update', 'user:restricted:read', 'book:read'])]
     private ?string $firstName = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['user:write', 'user:read', 'user:update'])]
+    #[Groups(['user:write', 'user:read', 'user:update', 'book:read'])]
     private ?string $lastName = null;
 
     #[ORM\Column(length: 255)]
@@ -123,7 +124,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private Collection $receivers;
 
     #[ORM\OneToOne(inversedBy: 'user', cascade: ['persist', 'remove'])]
-    #[Groups(['user:write'])]
+    #[Groups(['user:write', 'user:read'])]
     private ?ProfessionnalDetails $professionnalDetails = null;
 
     /**

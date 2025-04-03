@@ -5,6 +5,7 @@ namespace App\Entity;
 use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
@@ -12,8 +13,10 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Delete;
 use App\DataPersister\BookDataPersister;
+use App\DataPersister\BookImagePersister;
 use App\Repository\BookRepository;
 use App\State\Provider\BookCollectionProvider;
+use App\State\Provider\PublicOtherBooksByUserProvider;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -22,6 +25,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: BookRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 #[ApiFilter(SearchFilter::class, properties: ['title' => 'partial', 'author' => 'exact'])]
 #[ApiFilter(OrderFilter::class, properties: ['createdAt', 'price'])]
 #[ApiResource(
@@ -42,6 +46,13 @@ use Symfony\Component\Serializer\Annotation\Groups;
             paginationEnabled: false,
             securityMessage: "Vous devez être connecté pour accéder à cette ressource"
         ),
+        new GetCollection(
+            uriTemplate: '/books/{id}/public-other-books',
+            normalizationContext: ['groups' => ['book:read']],
+            security: "is_granted('PUBLIC_ACCESS')",
+            provider: PublicOtherBooksByUserProvider::class,
+            paginationEnabled: false,
+        ),
         new Post(
             denormalizationContext: ['groups' => ['book:write']],
             security: "is_granted('ROLE_VENDEUR')",
@@ -51,11 +62,24 @@ use Symfony\Component\Serializer\Annotation\Groups;
         new Patch(
             denormalizationContext: ['groups' => ['book:write']],
             security: "is_granted('BOOK_EDIT', object)",
+            processor: BookDataPersister::class,
             securityMessage: "Vous ne pouvez modifier que vos propres livres"
         ),
         new Delete(
             security: "is_granted('BOOK_DELETE', object)",
             securityMessage: "Vous ne pouvez supprimer que vos propres livres"
+        ),
+        new Post(
+            uriTemplate: '/books/{id}/image',
+            security: "is_granted('BOOK_EDIT', object)",
+            input: false,
+            processor: BookImagePersister::class,
+            deserialize: false,
+            formats: [
+                'json' => ['application/ld+json', 'application/json'],
+                'multipart' => ['multipart/form-data']
+            ],
+            securityMessage: "Vous ne pouvez modifier que vos propres livres"
         ),
     ]
 )]
@@ -99,6 +123,17 @@ class Book
 
     #[ORM\ManyToOne(inversedBy: 'books')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['book:read'])]
+    #[ApiProperty(
+        openapiContext: [
+            'type' => 'object',
+            'properties' => [
+                'id' => ['type' => 'integer'],
+                'prenom' => ['type' => 'string'],
+                'nom' => ['type' => 'string'],
+            ]
+        ]
+    )]
     private ?User $user = null;
 
     #[ORM\ManyToOne(inversedBy: 'books')]
@@ -135,7 +170,7 @@ class Book
     private ?int $price = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['book:read', 'book:write'])]
+    #[Groups(['book:read', 'book:write', 'book:edit'])]
     private ?string $image = null;
 
     #[ORM\Column(nullable: true)]

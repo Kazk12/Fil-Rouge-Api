@@ -26,4 +26,9 @@ services:
   App\DataPersister\UserDataPersister:
     tags: ["api_platform.state_processor"]
 
+
+  App\DataPersister\BookImagePersister:
+    arguments:
+      $imageDirectory: '%kernel.project_dir%/public/images'
+
  

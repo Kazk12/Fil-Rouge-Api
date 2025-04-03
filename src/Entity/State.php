@@ -27,7 +27,7 @@ class State
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['book:read'])]
+    #[Groups(['book:read', 'state:read'])]
     private ?string $name = null;
 
     /**
